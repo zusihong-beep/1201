@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>憋尿OUT，袅袅ON - 儿童健康活动</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'pop-yellow': '#FFEA00',
+              'pop-pink': '#FF4D8C',
+              'pop-red': '#FF2E2E',
+              'pop-blue': '#4DE1FF',
+              'pop-green': '#39FF14',
+              'pop-orange': '#FF8C00',
+              'pop-purple': '#9D4DFF',
+            },
+            fontFamily: {
+              'sans': ['"ZCOOL KuaiLe"', 'sans-serif'],
+              'pixel': ['"VT323"', 'monospace'],
+            },
+            boxShadow: {
+              'pixel': '4px 4px 0px 0px rgba(0,0,0,0.2)',
+              'pixel-lg': '8px 8px 0px 0px rgba(0,0,0,0.2)',
+              'hard': '4px 4px 0px 0px #000000',
+              'hard-xl': '8px 8px 0px 0px #000000',
+              'soft': '0 8px 20px rgba(0,0,0,0.1)',
+            },
+            animation: {
+              'float': 'float 4s ease-in-out infinite',
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '25%': { transform: 'translateX(-5px) rotate(-1deg)' },
+                '75%': { transform: 'translateX(5px) rotate(1deg)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Global Styles -->
+    <style>
+      body {
+        background-color: #FFF9C4; /* Soft Pale Yellow */
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #FFF;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #FF4D8C;
+        border-radius: 6px;
+      }
+      .text-stroke-2 {
+        -webkit-text-stroke: 2px black;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    </style>
+    
+    <!-- Import Map for Modules -->
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.292.0",
+    "canvas-confetti": "https://esm.sh/canvas-confetti@1.9.2",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Main Application Script -->
+    <script type="text/babel" data-presets="react,typescript" data-type="module">
+      import React, { useState, useEffect, useRef } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { 
+        Menu, X, Heart, ArrowDown, BookOpen, AlertCircle, 
+        Coffee, Clock, Upload, Play, RotateCcw, 
+        AlertTriangle, Droplets, Sparkles, Pin, Activity, Ban,
+        ArrowRight, ArrowLeft, ArrowUp 
+      } from 'lucide-react';
+      import confetti from 'canvas-confetti';
+
+      // --- 1. CONSTANTS & DATA ---
+      
+      const NAV_ITEMS = [
+        { label: '首页', href: '#hero' },
+        { label: '看视频', href: '#video' },
+        { label: '科普海报', href: '#poster' },
+        { label: '大冒险', href: '#game' },
+        { label: '健康知识', href: '#info' },
+      ];
+
+      const HEALTH_TIPS = [
+        {
+          id: 1,
+          title: '不要憋尿',
+          description: '想尿尿的时候要马上告诉老师或家长，憋尿会让身体生病哦！',
+          iconName: 'AlertTriangle'
+        },
+        {
+          id: 2,
+          title: '多喝水',
+          description: '每天要喝足够的水，帮助身体排毒，让袅袅开心！',
+          iconName: 'Droplets'
+        },
+        {
+          id: 3,
+          title: '勤洗手',
+          description: '上完厕所要洗手，细菌拜拜，健康来！',
+          iconName: 'Sparkles'
+        }
+      ];
+
+      const LEVELS = [
+        {
+          id: 1,
+          name: "第一关：教室探险",
+          gridSize: 5,
+          timeLimit: 30,
+          bgStyle: {
+              backgroundColor: '#FFEDD5', 
+              backgroundImage: 'repeating-linear-gradient(45deg, #FDBA74 0, #FDBA74 1px, transparent 0, transparent 50%)',
+              backgroundSize: '10px 10px',
+              opacity: 0.9
+          },
+          wallIcon: "🪑", 
+          tip: "下课铃响了，要立刻去厕所，不要因为贪玩而憋尿哦！",
+          layout: [
+            ['start', 'empty', 'wall', 'empty', 'empty'],
+            ['wall', 'empty', 'coffee', 'empty', 'wall'],
+            ['empty', 'empty', 'empty', 'empty', 'empty'],
+            ['empty', 'wall', 'wall', 'wall', 'empty'],
+            ['empty', 'coffee', 'empty', 'wall', 'toilet'],
+          ]
+        },
+        {
+          id: 2,
+          name: "第二关：热闹商场",
+          gridSize: 5,
+          timeLimit: 25,
+          bgStyle: {
+              backgroundColor: '#DBEAFE', 
+              backgroundImage: 'linear-gradient(45deg, #93C5FD 25%, transparent 25%, transparent 75%, #93C5FD 75%, #93C5FD), linear-gradient(45deg, #93C5FD 25%, transparent 25%, transparent 75%, #93C5FD 75%, #93C5FD)',
+              backgroundSize: '20px 20px',
+              backgroundPosition: '0 0, 10px 10px'
+          },
+          wallIcon: "🛍️", 
+          tip: "逛街时如果想尿尿，要马上告诉爸爸妈妈，找商场里的厕所标志！",
+          layout: [
+            ['start', 'tea', 'empty', 'wall', 'empty'],
+            ['empty', 'wall', 'empty', 'empty', 'empty'],
+            ['empty', 'empty', 'empty', 'tea', 'empty'],
+            ['empty', 'empty', 'wall', 'wall', 'dirty_toilet'], // Fixed Path
+            ['wall', 'empty', 'empty', 'empty', 'toilet'],
+          ]
+        },
+        {
+          id: 3,
+          name: "第三关：公园迷宫",
+          gridSize: 5,
+          timeLimit: 20,
+          bgStyle: {
+              backgroundColor: '#DCFCE7', 
+              backgroundImage: 'radial-gradient(#86EFAC 20%, transparent 20%), radial-gradient(#86EFAC 20%, transparent 20%)',
+              backgroundSize: '16px 16px',
+              backgroundPosition: '0 0, 8px 8px'
+          },
+          wallIcon: "🌳", 
+          tip: "在外面玩耍时，不要等到憋不住了才找厕所，膀胱会受伤的！",
+          layout: [
+            ['start', 'empty', 'empty', 'empty', 'empty'], // Fixed Start
+            ['tea', 'empty', 'empty', 'wall', 'empty'],
+            ['wall', 'wall', 'wall', 'wall', 'dirty_toilet'],
+            ['empty', 'empty', 'empty', 'empty', 'empty'], // Fixed Path
+            ['toilet', 'wall', 'wall', 'wall', 'empty'],
+          ]
+        }
+      ];
+
+      const VIDEO_PLACEHOLDER_URL = "https://picsum.photos/800/450?random=10";
+
+      // --- 2. COMPONENTS ---
+
+      // --- BlobBackground ---
+      const BlobBackground = () => {
+        return (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 bg-[#FFF9C4]">
+            {/* Top Left - Large Soft Oval */}
+            <div 
+              className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#FFF176] opacity-30" 
+              style={{ borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%' }}
+            ></div>
+            {/* Top Right - Medium Gold Blob */}
+            <div 
+              className="absolute top-[5%] right-[10%] w-[25%] h-[30%] bg-[#FFEE58] opacity-20 transform rotate-12"
+              style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }}
+            ></div>
+            {/* Center Left - Small Light Blob */}
+            <div 
+              className="absolute top-[40%] left-[5%] w-[15%] h-[20%] bg-[#FFF59D] opacity-40 transform -rotate-6"
+              style={{ borderRadius: '50% 50% 40% 60% / 50% 50% 60% 40%' }}
+            ></div>
+            {/* Center Right - Large Irregular Shape */}
+            <div 
+              className="absolute top-[30%] right-[0%] w-[35%] h-[40%] bg-[#FFF176] opacity-25"
+              style={{ borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%' }}
+            ></div>
+            {/* Bottom Left - Pale Gold Bean */}
+            <div 
+              className="absolute bottom-[5%] left-[15%] w-[30%] h-[25%] bg-[#FFEE58] opacity-20 transform -rotate-12"
+              style={{ borderRadius: '70% 30% 30% 70% / 60% 40% 60% 40%' }}
+            ></div>
+            {/* Bottom Right - Corner Blob */}
+            <div 
+              className="absolute -bottom-[10%] -right-[5%] w-[40%] h-[40%] bg-[#FFF59D] opacity-40"
+              style={{ borderRadius: '40% 60% 60% 40% / 40% 60% 60% 40%' }}
+            ></div>
+          </div>
+        );
+      };
+
+      // --- SoftMascot ---
+      const SoftMascot = ({ className = "w-full h-full", expression = 'happy', opacity = 1 }) => {
+        return (
+          <svg viewBox="0 0 200 200" className={className} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
+            <defs>
+              <filter id="watercolor" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+              </filter>
+              <radialGradient id="blushGradient">
+                <stop offset="0%" stopColor="#FFB6C1" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#FFB6C1" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <g filter="url(#watercolor)">
+              <path d="M40 80 Q 20 50 40 40" stroke="#FFB6C1" strokeWidth="12" strokeLinecap="round" fill="none" />
+              <path d="M160 80 Q 180 50 160 40" stroke="#FFB6C1" strokeWidth="12" strokeLinecap="round" fill="none" />
+              <path d="M80 150 Q 70 180 60 180" stroke="#FFF0F5" strokeWidth="12" strokeLinecap="round" fill="none" />
+              <path d="M120 150 Q 130 180 140 180" stroke="#FFF0F5" strokeWidth="12" strokeLinecap="round" fill="none" />
+              <path d="M100 170 C 60 170, 30 140, 30 90 C 30 40, 60 20, 100 20 C 140 20, 170 40, 170 90 C 170 140, 140 170, 100 170 Z" fill="#FFC0CB" />
+              <path d="M100 165 C 65 165, 35 135, 35 90 C 35 45, 65 25, 100 25 C 135 25, 165 45, 165 90 C 165 135, 135 165, 100 165 Z" fill="url(#blushGradient)" opacity="0.5"/>
+            </g>
+            <g transform="translate(0, 10)">
+              <circle cx="75" cy="80" r="6" fill="#000" />
+              <circle cx="125" cy="80" r="6" fill="#000" />
+              <ellipse cx="55" cy="90" rx="8" ry="5" fill="#FF69B4" opacity="0.6" />
+              <ellipse cx="145" cy="90" rx="8" ry="5" fill="#FF69B4" opacity="0.6" />
+              {expression === 'happy' && <path d="M90 95 Q 100 105 110 95" stroke="#000" strokeWidth="3" strokeLinecap="round" fill="none" />}
+              {expression === 'worry' && <path d="M90 100 Q 100 90 110 100" stroke="#000" strokeWidth="3" strokeLinecap="round" fill="none" />}
+              {expression === 'relief' && <path d="M90 95 Q 100 110 110 95" stroke="#000" strokeWidth="3" strokeLinecap="round" fill="none" />}
+              {expression === 'glasses' && (
+                <g>
+                  <circle cx="75" cy="80" r="12" stroke="#333" strokeWidth="2" fill="rgba(255,255,255,0.3)" />
+                  <circle cx="125" cy="80" r="12" stroke="#333" strokeWidth="2" fill="rgba(255,255,255,0.3)" />
+                  <line x1="87" y1="80" x2="113" y2="80" stroke="#333" strokeWidth="2" />
+                  <path d="M92 100 Q 100 95 108 100" stroke="#000" strokeWidth="2" strokeLinecap="round" fill="none" />
+                </g>
+              )}
+            </g>
+          </svg>
+        );
+      };
+
+      // --- Navbar ---
+      const Navbar = () => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (
+          <nav className="fixed top-4 left-0 w-full z-50 px-4 pointer-events-none">
+            <div className="container mx-auto flex justify-center pointer-events-auto">
+              <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-soft flex items-center justify-between gap-8 md:gap-12 border-2 border-white">
+                  <a href="#" className="flex items-center gap-2 group">
+                      <div className="bg-pop-pink rounded-full p-1.5 animate-pulse">
+                          <Heart className="text-white fill-current" size={20} />
+                      </div>
+                      <span className="font-black text-xl tracking-tight text-pop-pink">憋尿OUT</span>
+                  </a>
+                  <div className="hidden md:flex gap-1">
+                      {NAV_ITEMS.map((item) => (
+                          <a key={item.label} href={item.href} className="text-gray-600 hover:text-pop-pink hover:bg-pink-50 font-bold px-4 py-1.5 rounded-full transition-all text-sm">
+                              {item.label}
+                          </a>
+                      ))}
+                  </div>
+                  <div className="hidden md:flex">
+                      <a href="#game" className="bg-pop-pink text-white text-xs font-black px-3 py-1.5 rounded-full hover:scale-105 transition-transform">START</a>
+                  </div>
+                  <button className="md:hidden bg-pop-pink text-white p-1.5 rounded-full" onClick={() => setIsOpen(!isOpen)}>
+                      {isOpen ? <X size={20} /> : <Menu size={20} />}
+                  </button>
+              </div>
+            </div>
+            {isOpen && (
+              <div className="md:hidden absolute top-20 left-4 right-4 bg-white rounded-3xl shadow-xl p-6 flex flex-col gap-4 pointer-events-auto border-4 border-pop-pink">
+                  {NAV_ITEMS.map((item) => (
+                      <a key={item.label} href={item.href} onClick={() => setIsOpen(false)} className="text-center font-black text-xl text-gray-800 hover:text-pop-pink py-2">
+                        {item.label}
+                      </a>
+                  ))}
+              </div>
+            )}
+          </nav>
+        );
+      };
+
+      // --- Hero ---
+      const Hero = () => {
+        const bgMascots = [
+          { top: '5%', left: '2%', size: 'w-32', rotate: '-12deg', expression: 'happy', delay: '0s', opacity: 0.9, duration: '6s' },
+          { top: '8%', right: '5%', size: 'w-40', rotate: '12deg', expression: 'relief', delay: '1.5s', opacity: 0.85, duration: '7s' },
+          { bottom: '10%', left: '5%', size: 'w-36', rotate: '-6deg', expression: 'happy', delay: '2s', opacity: 0.8, duration: '6.5s' },
+          { bottom: '15%', right: '8%', size: 'w-32', rotate: '-10deg', expression: 'glasses', delay: '2.5s', opacity: 0.9, duration: '6.8s' },
+          { top: '25%', left: '15%', size: 'w-24', rotate: '-180deg', expression: 'worry', delay: '3s', opacity: 0.7, duration: '8s' },
+          { top: '35%', right: '12%', size: 'w-28', rotate: '45deg', expression: 'glasses', delay: '0.5s', opacity: 0.8, duration: '5s' },
+          { bottom: '25%', left: '20%', size: 'w-24', rotate: '15deg', expression: 'worry', delay: '1s', opacity: 0.7, duration: '5.5s' },
+          { top: '45%', left: '8%', size: 'w-20', rotate: '20deg', expression: 'happy', delay: '4s', opacity: 0.6, duration: '7.5s' },
+          { top: '15%', right: '25%', size: 'w-16', rotate: '-30deg', expression: 'worry', delay: '2s', opacity: 0.5, duration: '6s' },
+          { bottom: '40%', right: '2%', size: 'w-28', rotate: '10deg', expression: 'happy', delay: '1s', opacity: 0.8, duration: '8s' },
+          { bottom: '5%', left: '40%', size: 'w-24', rotate: '-5deg', expression: 'relief', delay: '3s', opacity: 0.7, duration: '7s' },
+          { top: '2%', left: '35%', size: 'w-20', rotate: '180deg', expression: 'happy', delay: '5s', opacity: 0.5, duration: '9s' },
+          { top: '55%', right: '20%', size: 'w-22', rotate: '-15deg', expression: 'glasses', delay: '0.8s', opacity: 0.8, duration: '6.2s' },
+          { top: '60%', left: '2%', size: 'w-16', rotate: '45deg', expression: 'happy', delay: '1.2s', opacity: 0.4, duration: '8.5s' },
+          { top: '10%', left: '50%', size: 'w-14', rotate: '-15deg', expression: 'relief', delay: '2.3s', opacity: 0.5, duration: '7.2s' },
+          { bottom: '20%', right: '35%', size: 'w-18', rotate: '90deg', expression: 'worry', delay: '0.5s', opacity: 0.4, duration: '6.8s' },
+          { top: '80%', right: '15%', size: 'w-12', rotate: '-45deg', expression: 'happy', delay: '3.1s', opacity: 0.6, duration: '5.5s' },
+          { bottom: '35%', left: '30%', size: 'w-20', rotate: '180deg', expression: 'glasses', delay: '1.8s', opacity: 0.5, duration: '7.8s' },
+        ];
+
+        return (
+          <section id="hero" className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden pt-10">
+            <BlobBackground />
+            <div className="absolute inset-0 pointer-events-none z-0">
+                {bgMascots.map((config, index) => (
+                  <div key={index} className={`absolute animate-float`} style={{
+                      top: config.top, bottom: config.bottom, left: config.left, right: config.right,
+                      animationDelay: config.delay, animationDuration: config.duration,
+                    }}>
+                    <div className={`${config.size} transform hover:scale-110 transition-transform duration-300`} style={{ transform: `rotate(${config.rotate})` }}>
+                      <SoftMascot expression={config.expression} opacity={config.opacity} /> 
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+              <div className="mb-4 relative flex flex-col items-center gap-2 z-20">
+                  <div className="relative group">
+                     <h1 className="text-8xl md:text-[10rem] font-normal tracking-wide text-white drop-shadow-[8px_8px_0_#FF4D8C] leading-none select-none hover:scale-105 transition-transform duration-300">
+                        憋尿 <span className="inline-block text-pop-pink ml-4 animate-bounce" style={{ animationDuration: '2s' }}>OUT</span>
+                     </h1>
+                  </div>
+                  <div className="relative group -mt-4">
+                    <h1 className="text-8xl md:text-[10rem] font-normal tracking-wide text-white drop-shadow-[8px_8px_0_#4DE1FF] leading-none select-none hover:scale-105 transition-transform duration-300">
+                        袅袅 <span className="inline-block text-pop-blue ml-4 animate-pulse" style={{ animationDuration: '1.5s' }}>ON</span>
+                     </h1>
+                  </div>
+              </div>
+
+              <div className="relative w-80 h-80 md:w-96 md:h-96 my-4 z-10">
+                   <div className="w-full h-full bg-white rounded-full border-[12px] border-pop-pink shadow-hard-xl relative">
+                      {[...Array(12)].map((_, i) => (
+                        <div key={i} className="absolute inset-0" style={{ transform: `rotate(${i * 30}deg)` }}>
+                          <div className="w-3 h-8 md:w-4 md:h-10 bg-pop-pink mx-auto mt-4 rounded-full" />
+                        </div>
+                      ))}
+                      <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-black rounded-full z-30 transform -translate-x-1/2 -translate-y-1/2"></div>
+                      <div className="absolute w-4 h-24 bg-black rounded-full z-20 origin-bottom" style={{ left: 'calc(50% - 8px)', bottom: '50%', transform: 'rotate(45deg)' }}></div>
+                      <div className="absolute w-2 h-36 z-20 origin-bottom" style={{ left: 'calc(50% - 4px)', bottom: '50%', animation: 'spin 60s linear infinite' }}>
+                        <div className="w-full h-full bg-black rounded-full"></div>
+                        <div className="absolute -top-12 -left-8 w-20 h-20 animate-bounce" style={{ animationDuration: '1s' }}><SoftMascot expression="happy" /></div>
+                      </div>
+                      <div className="absolute w-1 h-40 bg-pop-red rounded-full z-20 origin-bottom" style={{ left: 'calc(50% - 2px)', bottom: '50%', animation: 'spin 10s linear infinite' }}></div>
+                   </div>
+              </div>
+
+              <div className="relative z-20 mt-8">
+                 <p className="font-normal text-2xl text-white bg-black/80 px-6 py-3 rounded-full shadow-pixel transform rotate-1 hover:rotate-0 transition-all border-2 border-white">
+                   ✨ 摆脱憋尿，跟袅袅一起享受健康！ ✨
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-6 mt-12 mb-12 z-20">
+                  <a href="#video" className="bg-white text-pop-pink border-4 border-pop-pink px-10 py-4 rounded-full text-2xl font-normal shadow-pixel hover:shadow-none hover:translate-y-1 transition-all">观看视频</a>
+                  <a href="#game" className="bg-pop-pink text-white border-4 border-pop-pink px-10 py-4 rounded-full text-2xl font-normal shadow-pixel hover:shadow-none hover:translate-y-1 transition-all">开始游戏</a>
+              </div>
+
+              <div className="absolute bottom-4 animate-bounce z-20"><ArrowDown className="text-black" size={32} strokeWidth={3} /></div>
+            </div>
+          </section>
+        );
+      };
+
+      // --- VideoSection ---
+      const VideoSection = () => {
+        const [videoSrc, setVideoSrc] = useState('./video.mp4');
+        const [hasError, setHasError] = useState(false);
+        const videoRef = useRef(null);
+        const fileInputRef = useRef(null);
+
+        const handleFileChange = (event) => {
+          const file = event.target.files?.[0];
+          if (file) {
+            setVideoSrc(URL.createObjectURL(file));
+            setHasError(false);
+            setTimeout(() => videoRef.current?.play().catch(console.log), 100);
+          }
+        };
+
+        return (
+          <section id="video" className="py-20 bg-pop-yellow relative">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col items-center mb-16">
+                <div className="bg-black text-pop-yellow font-pixel text-xl px-4 py-2 mb-2 rotate-2">EPISODE.01</div>
+                <h2 className="text-5xl md:text-7xl font-normal text-center text-white drop-shadow-[4px_4px_0_#FF4D8C] transform -rotate-1 max-w-4xl leading-tight">WHY NOT HOLDING PEE?</h2>
+                <p className="mt-6 text-xl text-black font-normal bg-white px-6 py-2 border-2 border-black shadow-hard rotate-1 rounded-full">为什么不能憋尿？听听袅袅怎么说！</p>
+              </div>
+
+              <div className="max-w-4xl mx-auto mb-20 relative group">
+                <div className="absolute inset-0 bg-black translate-x-4 translate-y-4 rounded-xl"></div>
+                <div className="relative bg-pop-pink border-4 border-black p-4 md:p-8 rounded-xl">
+                  <div className="aspect-video bg-black border-4 border-black relative overflow-hidden rounded-lg">
+                    {!hasError ? (
+                      <video ref={videoRef} className="w-full h-full object-contain" controls src={videoSrc} poster={VIDEO_PLACEHOLDER_URL} onError={() => setHasError(true)}>您的浏览器不支持 HTML5 视频播放。</video>
+                    ) : (
+                      <div className="text-white h-full flex flex-col items-center justify-center p-8 text-center bg-gray-900">
+                        <AlertCircle size={48} className="text-pop-yellow mb-4 animate-bounce" />
+                        <p className="text-2xl font-normal mb-2 font-pixel">VIDEO NOT FOUND</p>
+                        <p className="text-sm mb-6 max-w-md">无法加载视频。请确保 "video.mp4" 在文件夹中，或手动选择视频文件。</p>
+                        <button onClick={() => fileInputRef.current?.click()} className="mt-6 bg-pop-yellow text-black px-6 py-3 border-4 border-black shadow-hard hover:shadow-none hover:translate-x-1 hover:translate-y-1 font-normal flex items-center gap-2 rounded-lg">
+                          <Upload size={20} /> 选择本地视频
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4 flex justify-between items-center border-t-4 border-black/20 pt-4 px-2"><div className="font-pixel text-xl text-white">REC ●</div></div>
+                </div>
+              </div>
+              <input ref={fileInputRef} type="file" accept="video/*" className="hidden" onChange={handleFileChange} />
+              <div className="max-w-6xl mx-auto">
+                <div className="flex items-center gap-4 mb-10"><BookOpen size={40} className="text-black" strokeWidth={3} /><h3 className="text-4xl font-normal italic">NIAO'S NOTES</h3><div className="flex-1 h-2 bg-black rounded-full"></div></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="bg-white p-6 border-4 border-black shadow-hard rounded-xl hover:-translate-y-2 transition-transform">
+                      <div className="bg-pop-orange w-16 h-16 border-4 border-black flex items-center justify-center text-3xl mb-4 shadow-hard text-white rounded-full">!</div>
+                      <h4 className="text-2xl font-normal mb-2 uppercase">29.2% Risk</h4>
+                      <p className="text-lg text-gray-800 leading-snug">研究表明，有憋尿习惯的女生，尿路感染的风险高达 29.2%！</p>
+                    </div>
+                    <div className="bg-white p-6 border-4 border-black shadow-hard rounded-xl hover:-translate-y-2 transition-transform">
+                      <div className="bg-pop-pink w-16 h-16 border-4 border-black flex items-center justify-center text-3xl mb-4 shadow-hard text-white rounded-full"><Coffee size={32} strokeWidth={3} /></div>
+                      <h4 className="text-2xl font-normal mb-2 uppercase">NO COFFEE</h4>
+                      <p className="text-lg text-gray-800 leading-snug">咖啡和奶茶会刺激肾脏加速产尿。少喝一点，对袅袅好一点！</p>
+                    </div>
+                    <div className="bg-white p-6 border-4 border-black shadow-hard rounded-xl hover:-translate-y-2 transition-transform">
+                      <div className="bg-pop-purple w-16 h-16 border-4 border-black flex items-center justify-center text-3xl mb-4 shadow-hard text-white rounded-full"><Clock size={32} strokeWidth={3} /></div>
+                      <h4 className="text-2xl font-normal mb-2 uppercase">1-2 HOURS</h4>
+                      <p className="text-lg text-gray-800 leading-snug">如果在特殊情况必须憋尿，请尽量控制在 1-2 小时内哦。</p>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // --- PosterSection ---
+      const PosterSection = () => {
+        const bgMascots = [
+          { top: '10%', left: '5%', size: 'w-24', rotate: '-15deg', expression: 'worry', delay: '0s', opacity: 0.5 },
+          { bottom: '15%', right: '5%', size: 'w-32', rotate: '10deg', expression: 'happy', delay: '1s', opacity: 0.5 },
+          { top: '40%', right: '10%', size: 'w-20', rotate: '20deg', expression: 'glasses', delay: '2s', opacity: 0.4 },
+          { bottom: '10%', left: '10%', size: 'w-28', rotate: '-5deg', expression: 'relief', delay: '1.5s', opacity: 0.5 },
+        ];
+        return (
+          <section id="poster" className="py-24 relative overflow-hidden bg-pop-pink">
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                   {bgMascots.map((config, index) => (
+                      <div key={index} className={`absolute animate-float`} style={{ top: config.top, bottom: config.bottom, left: config.left, right: config.right, animationDelay: config.delay }}>
+                        <div className={`${config.size} transform`} style={{ transform: `rotate(${config.rotate})` }}><SoftMascot expression={config.expression} opacity={config.opacity} /></div>
+                      </div>
+                    ))}
+              </div>
+              <div className="container mx-auto px-4 relative z-10">
+                  <div className="flex flex-col md:flex-row justify-center gap-12 md:gap-20 items-center max-w-6xl mx-auto">
+                      <div className="relative group max-w-md w-full">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-32 h-8 bg-white/50 rotate-2 backdrop-blur-sm border-2 border-white/20 shadow-sm"></div>
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30"><Pin className="text-pop-red fill-pop-red drop-shadow-md" size={40} /></div>
+                          <div className="bg-white p-2 border-4 border-black shadow-hard-xl rotate-[-2deg] group-hover:rotate-0 group-hover:scale-105 transition-all duration-300">
+                              <div className="bg-pop-yellow p-6 h-[500px] flex flex-col items-center text-center border-2 border-black relative overflow-hidden">
+                                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 rounded-full -mr-10 -mt-10"></div>
+                                   <div className="bg-white rounded-full p-6 mb-6 shadow-hard border-4 border-black"><Ban size={64} className="text-pop-red" strokeWidth={3} /></div>
+                                   <h3 className="text-4xl font-normal text-black mb-4">憋尿的危害</h3>
+                                   <div className="bg-white/90 p-4 rounded-xl border-2 border-black w-full flex-1 flex flex-col justify-center gap-4">
+                                      <p className="font-normal text-lg text-black">🔴 <span className="text-pop-red text-xl">细菌感染</span><br/><span className="text-sm">尿液在膀胱留太久，细菌会开派对！</span></p>
+                                      <p className="font-normal text-lg text-black">🔴 <span className="text-pop-red text-xl">膀胱变懒</span><br/><span className="text-sm">经常憋尿，膀胱肌肉会失去弹性哦。</span></p>
+                                   </div>
+                                   <div className="mt-4 font-pixel text-black text-lg">NO HOLDING PEE!</div>
+                              </div>
+                          </div>
+                      </div>
+                      <div className="relative group max-w-md w-full mt-12 md:mt-0">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 w-32 h-8 bg-white/50 -rotate-1 backdrop-blur-sm border-2 border-white/20 shadow-sm"></div>
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30"><Pin className="text-pop-blue fill-pop-blue drop-shadow-md" size={40} /></div>
+                          <div className="bg-white p-2 border-4 border-black shadow-hard-xl rotate-[2deg] group-hover:rotate-0 group-hover:scale-105 transition-all duration-300">
+                              <div className="bg-pop-blue p-6 h-[500px] flex flex-col items-center text-center border-2 border-black relative overflow-hidden">
+                                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/20 rounded-full -ml-10 -mb-10"></div>
+                                   <div className="bg-white rounded-full p-6 mb-6 shadow-hard border-4 border-black"><Activity size={64} className="text-pop-green" strokeWidth={3} /></div>
+                                   <h3 className="text-4xl font-normal text-white text-stroke-2 mb-4">健康好习惯</h3>
+                                   <div className="bg-white/90 p-4 rounded-xl border-2 border-black w-full flex-1 flex flex-col justify-center gap-4">
+                                      <p className="font-normal text-lg text-black">✅ <span className="text-pop-green text-xl">定时排尿</span><br/><span className="text-sm">下课了不管有没有尿，都去厕所试一试。</span></p>
+                                      <p className="font-normal text-lg text-black">✅ <span className="text-pop-green text-xl">放松心情</span><br/><span className="text-sm">上厕所时不要着急，慢慢来。</span></p>
+                                   </div>
+                                   <div className="mt-4 font-pixel text-white text-lg">HEALTHY BLADDER!</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </section>
+        );
+      };
+
+      // --- GameSection ---
+      const GameSection = () => {
+        const [gameState, setGameState] = useState(0); // 0: IDLE, 1: PLAYING, 2: WON
+        const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
+        const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+        const [urgency, setUrgency] = useState(0);
+        const [timeLeft, setTimeLeft] = useState(0);
+        const [showTip, setShowTip] = useState(false);
+        const [message, setMessage] = useState("准备好了吗?");
+        const [feedback, setFeedback] = useState(null);
+        const gameLoopRef = useRef(null);
+
+        const currentLevel = LEVELS[currentLevelIdx];
+
+        const initLevel = (levelIndex) => {
+          const level = LEVELS[levelIndex];
+          let startX = 0, startY = 0;
+          level.layout.forEach((row, y) => row.forEach((tile, x) => { if(tile === 'start') { startX = x; startY = y; } }));
+          setPlayerPos({ x: startX, y: startY });
+          setTimeLeft(level.timeLimit);
+          setUrgency(0);
+          setFeedback(null);
+          setMessage(`Level ${levelIndex + 1}: ${level.name}`);
+        };
+
+        const startGame = () => {
+          setCurrentLevelIdx(0);
+          initLevel(0);
+          setGameState(1);
+          setShowTip(false);
+        };
+
+        const nextLevel = () => {
+          if (currentLevelIdx < LEVELS.length - 1) {
+            setCurrentLevelIdx(prev => prev + 1);
+            initLevel(currentLevelIdx + 1);
+            setGameState(1);
+            setShowTip(false);
+          } else {
+            setGameState(2);
+            setMessage("太棒了！你是一个健康小卫士！");
+            confetti({ particleCount: 300, spread: 180, colors: ['#FFEA00', '#FF4D8C', '#4DE1FF'] });
+          }
+        };
+
+        useEffect(() => {
+          if (gameState === 1 && !showTip) {
+            gameLoopRef.current = window.setInterval(() => {
+              setTimeLeft(prev => {
+                if (prev <= 0) { handleGameOver("时间到了！"); return 0; }
+                return prev - 1;
+              });
+              setUrgency(prev => {
+                const increase = prev > 50 ? 6 : 4; 
+                const newVal = prev + increase;
+                if (newVal >= 100) { handleGameOver("哎呀！没憋住！"); return 100; }
+                return newVal;
+              });
+              if (Math.random() > 0.8) setFeedback(null);
+            }, 1000);
+          }
+          return () => { if (gameLoopRef.current) clearInterval(gameLoopRef.current); };
+        }, [gameState, showTip]);
+
+        const handleGameOver = (reason) => {
+          setGameState(0);
+          setMessage(`游戏结束: ${reason}`);
+          if (gameLoopRef.current) clearInterval(gameLoopRef.current);
+        };
+
+        const movePlayer = (dir) => {
+          if (gameState !== 1 || showTip) return;
+          let newX = playerPos.x;
+          let newY = playerPos.y;
+          if (dir === 'up') newY--;
+          if (dir === 'down') newY++;
+          if (dir === 'left') newX--;
+          if (dir === 'right') newX++;
+
+          if (newX < 0 || newX >= currentLevel.gridSize || newY < 0 || newY >= currentLevel.gridSize) return;
+          const targetTile = currentLevel.layout[newY][newX];
+
+          if (targetTile === 'wall' || targetTile === 'coffee' || targetTile === 'tea') {
+              if (targetTile === 'coffee') { setFeedback("咖啡让你更想尿尿！+20%"); setUrgency(prev => Math.min(prev + 20, 99)); }
+              if (targetTile === 'tea') { setFeedback("奶茶虽然好喝，但现在不行！+20%"); setUrgency(prev => Math.min(prev + 20, 99)); }
+              return; 
+          }
+          if (targetTile === 'dirty_toilet') { setFeedback("脏厕所在应急时也是一种选择，但要注意卫生哟"); setUrgency(prev => Math.min(prev + 10, 99)); setPlayerPos({ x: newX, y: newY }); return; }
+          if (targetTile === 'no_paper_toilet') { setFeedback("哎呀！没有厕纸！"); setUrgency(prev => Math.min(prev + 10, 99)); setPlayerPos({ x: newX, y: newY }); return; }
+
+          setPlayerPos({ x: newX, y: newY });
+          setFeedback(null);
+          if (targetTile === 'toilet') {
+            if (gameLoopRef.current) clearInterval(gameLoopRef.current);
+            setMessage("找到了！好舒服！");
+            setShowTip(true);
+          }
+        };
+
+        useEffect(() => {
+          const handleKeyDown = (e) => {
+            if (e.key === 'ArrowUp') movePlayer('up');
+            if (e.key === 'ArrowDown') movePlayer('down');
+            if (e.key === 'ArrowLeft') movePlayer('left');
+            if (e.key === 'ArrowRight') movePlayer('right');
+          };
+          window.addEventListener('keydown', handleKeyDown);
+          return () => window.removeEventListener('keydown', handleKeyDown);
+        }, [playerPos, gameState, showTip, urgency]);
+
+        const renderTile = (tile, x, y) => {
+            let content = null;
+            let styleClass = "";
+            switch (tile) {
+                case 'wall': content = <span className="text-3xl filter drop-shadow-md">{currentLevel.wallIcon}</span>; break;
+                case 'coffee': content = <span className="text-3xl filter drop-shadow-md">☕</span>; break;
+                case 'tea': content = <span className="text-3xl filter drop-shadow-md">🧋</span>; break;
+                case 'toilet': content = <span className="text-3xl filter drop-shadow-md">🚽</span>; styleClass = "bg-white/80 border-2 border-pop-blue shadow-inner"; break;
+                case 'dirty_toilet': content = <span className="text-3xl filter drop-shadow-md relative">🚽<span className="absolute -top-1 -right-1 text-xs">🪰</span></span>; styleClass = "bg-gray-200 border-2 border-gray-400"; break;
+                case 'no_paper_toilet': content = <span className="text-3xl filter drop-shadow-md relative">🚽<span className="absolute -top-1 -right-1 text-xs">🚫</span></span>; styleClass = "bg-gray-200 border-2 border-gray-400"; break;
+            }
+            return (
+              <div key={`${x}-${y}`} className={`w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center relative transition-all duration-200 ${styleClass} ${tile === 'empty' || tile === 'start' ? 'bg-white/40' : ''}`}>
+                  {content}
+                  {playerPos.x === x && playerPos.y === y && (
+                      <div className="absolute inset-0 z-10 transition-all duration-100 p-1"><SoftMascot expression={urgency > 70 ? 'worry' : 'happy'} /></div>
+                  )}
+              </div>
+            );
+        };
+
+        return (
+          <section id="game" className={`py-24 relative overflow-hidden bg-white/80 backdrop-blur-sm mx-4 md:mx-12 rounded-[40px] my-12 shadow-soft transition-all duration-100 ${urgency > 80 && gameState === 1 ? 'animate-shake' : ''}`}>
+            <div className="container mx-auto px-4 relative z-10">
+              <div className="text-center mb-6">
+                <div className="inline-block bg-pop-pink text-white px-4 py-1 rounded-full font-bold mb-2">GAME ZONE</div>
+                <h2 className="text-4xl md:text-6xl font-normal text-pop-pink mb-4">{gameState === 2 ? "通关大挑战" : "寻找厕所大冒险"}</h2>
+                <p className="text-xl text-gray-600">{message}</p>
+              </div>
+
+              <div className="max-w-3xl mx-auto rounded-3xl p-6 border-4 border-white shadow-xl relative transition-all duration-500 flex flex-col items-center" style={gameState === 1 ? currentLevel.bgStyle : { backgroundColor: '#F3F4F6' }}>
+                {gameState === 1 && (
+                  <div className="w-full flex flex-col gap-2 mb-6 bg-white/90 p-4 rounded-xl border-2 border-gray-200 shadow-sm">
+                     <div className="flex justify-between items-center">
+                          <div className="flex-1 mr-4">
+                              <div className="flex justify-between text-sm font-bold mb-1">
+                                  <span>尿急度 (Urgency)</span>
+                                  <span className={`${urgency > 80 ? 'text-red-600 animate-pulse' : 'text-blue-500'}`}>{urgency}%</span>
+                              </div>
+                              <div className="h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+                                  <div className={`h-full transition-all duration-300 ${urgency > 70 ? 'bg-red-500' : urgency > 40 ? 'bg-yellow-500' : 'bg-green-500'}`} style={{ width: `${urgency}%` }}></div>
+                              </div>
+                          </div>
+                          <div className="flex items-center gap-2 font-black text-xl text-pop-purple bg-purple-100 px-3 py-1 rounded-full"><Clock size={20} /><span>{timeLeft}s</span></div>
+                     </div>
+                     <div className="min-h-[2rem] flex items-center justify-center text-pop-red font-bold text-sm md:text-lg text-center leading-tight">
+                         {feedback && <div className="flex items-center gap-2 animate-bounce"><AlertTriangle size={18} className="shrink-0" />{feedback}</div>}
+                     </div>
+                  </div>
+                )}
+
+                <div className="relative w-full flex flex-col items-center justify-center">
+                  {gameState === 0 && (
+                     <div className="text-center py-8">
+                       <div className="w-40 h-40 mx-auto mb-6 animate-bounce"><SoftMascot expression="happy" /></div>
+                       <button onClick={startGame} className="bg-pop-green hover:bg-green-400 text-white px-10 py-4 rounded-2xl text-2xl font-normal shadow-pixel hover:translate-y-1 transition-all flex items-center gap-2 mx-auto"><Play fill="white" size={24} /> 开始冒险</button>
+                     </div>
+                  )}
+                  {gameState === 2 && (
+                    <div className="text-center z-20 py-8">
+                       <div className="w-40 h-40 mx-auto mb-6"><SoftMascot expression="happy" /></div>
+                       <h3 className="text-3xl mb-6 font-normal">恭喜你！学会了健康排尿习惯！</h3>
+                       <button onClick={() => setGameState(0)} className="bg-pop-blue hover:bg-blue-400 text-white px-8 py-3 rounded-2xl text-xl font-normal shadow-pixel hover:translate-y-1 transition-all flex items-center gap-2 mx-auto"><RotateCcw /> 再玩一次</button>
+                     </div>
+                  )}
+                  {gameState === 1 && !showTip && (
+                    <div className="grid gap-2 md:gap-3" style={{ gridTemplateColumns: `repeat(${currentLevel.gridSize}, minmax(0, 1fr))` }}>
+                      {currentLevel.layout.map((row, y) => row.map((tile, x) => renderTile(tile, x, y)))}
+                    </div>
+                  )}
+                  
+                  {gameState === 1 && !showTip && (
+                     <div className="mt-8 flex flex-col items-center gap-3">
+                        <button onClick={() => movePlayer('up')} className="w-16 h-16 bg-white rounded-2xl shadow-hard border-2 border-black active:bg-gray-100 active:translate-y-1 transition-all flex items-center justify-center"><ArrowUp size={32} strokeWidth={3} className="text-pop-blue"/></button>
+                        <div className="flex gap-4">
+                          <button onClick={() => movePlayer('left')} className="w-16 h-16 bg-white rounded-2xl shadow-hard border-2 border-black active:bg-gray-100 active:translate-y-1 transition-all flex items-center justify-center"><ArrowLeft size={32} strokeWidth={3} className="text-pop-blue"/></button>
+                          <button onClick={() => movePlayer('down')} className="w-16 h-16 bg-white rounded-2xl shadow-hard border-2 border-black active:bg-gray-100 active:translate-y-1 transition-all flex items-center justify-center"><ArrowDown size={32} strokeWidth={3} className="text-pop-blue"/></button>
+                          <button onClick={() => movePlayer('right')} className="w-16 h-16 bg-white rounded-2xl shadow-hard border-2 border-black active:bg-gray-100 active:translate-y-1 transition-all flex items-center justify-center"><ArrowRight size={32} strokeWidth={3} className="text-pop-blue"/></button>
+                        </div>
+                     </div>
+                  )}
+
+                  {showTip && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-4 rounded-3xl">
+                      <div className="bg-white rounded-3xl p-8 max-w-sm text-center border-4 border-pop-pink animate-float shadow-2xl">
+                        <div className="w-24 h-24 mx-auto mb-4"><SoftMascot expression="relief" /></div>
+                        <h3 className="text-2xl font-bold text-pop-pink mb-2">健康小贴士</h3>
+                        <p className="text-lg mb-6">{currentLevel.tip}</p>
+                        <button onClick={nextLevel} className="bg-pop-green text-white px-6 py-2 rounded-full font-bold shadow-hard hover:translate-y-1 text-xl">{currentLevelIdx < LEVELS.length - 1 ? "下一关" : "领取奖励"}</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {gameState === 1 && <div className="mt-6 text-center text-gray-500 text-sm font-bold bg-white/70 px-4 py-2 rounded-full">💡 使用屏幕按钮或键盘方向键移动</div>}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // --- InfoSection ---
+      const InfoSection = () => {
+        const getIcon = (iconName) => {
+          switch (iconName) {
+            case 'AlertTriangle': return <AlertTriangle size={40} className="text-black" strokeWidth={3} />;
+            case 'Droplets': return <Droplets size={40} className="text-black" strokeWidth={3} />;
+            case 'Sparkles': return <Sparkles size={40} className="text-black" strokeWidth={3} />;
+            default: return <Sparkles size={40} className="text-black" strokeWidth={3} />;
+          }
+        };
+
+        return (
+          <section id="info" className="py-24 bg-pop-pink border-t-4 border-black relative">
+            <div className="container mx-auto px-4">
+              <div className="mb-16 text-center"><h2 className="text-6xl md:text-8xl font-normal text-white drop-shadow-[6px_6px_0_#000000]">HABITS</h2></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                {HEALTH_TIPS.map((tip, index) => (
+                  <div key={tip.id} className="bg-white p-8 border-4 border-black shadow-hard group hover:bg-pop-yellow transition-colors rounded-2xl">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className={`w-16 h-16 border-4 border-black flex items-center justify-center shadow-hard rounded-full ${index === 0 ? 'bg-pop-pink' : index === 1 ? 'bg-pop-blue' : 'bg-pop-green'}`}>{getIcon(tip.iconName)}</div>
+                      <div className="font-pixel text-5xl text-gray-300 group-hover:text-black font-bold">0{index + 1}</div>
+                    </div>
+                    <h3 className="text-3xl font-normal mb-4 text-black">{tip.title}</h3>
+                    <p className="text-xl text-gray-800 leading-relaxed border-t-4 border-black pt-4">{tip.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // --- Footer ---
+      const Footer = () => {
+        return (
+          <footer className="bg-gray-900 text-white pt-16 pb-8 border-t-4 border-black">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col md:flex-row justify-between items-center mb-12 text-center md:text-left">
+                <div className="mb-8 md:mb-0"><h3 className="text-3xl font-black text-pop-yellow mb-2">憋尿OUT，袅袅ON</h3><p className="text-gray-400 max-w-sm">让我们一起关注儿童健康，养成良好的如厕习惯！</p></div>
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-gray-800 rounded-lg hover:bg-pop-pink transition-colors cursor-pointer"></div>
+                  <div className="w-12 h-12 bg-gray-800 rounded-lg hover:bg-pop-blue transition-colors cursor-pointer"></div>
+                  <div className="w-12 h-12 bg-gray-800 rounded-lg hover:bg-pop-green transition-colors cursor-pointer"></div>
+                </div>
+              </div>
+              <div className="border-t border-gray-800 pt-8 text-center text-gray-500 font-medium"><p>© 2024 憋尿OUT campaign. All rights reserved.</p></div>
+            </div>
+          </footer>
+        );
+      };
+
+      // --- App ---
+      const App = () => {
+        return (
+          <div className="min-h-screen font-sans text-black selection:bg-black selection:text-pop-yellow overflow-x-hidden">
+            <Navbar />
+            <main>
+              <Hero />
+              <VideoSection />
+              <PosterSection />
+              <GameSection />
+              <InfoSection />
+            </main>
+            <Footer />
+          </div>
+        );
+      };
+
+      // Mount the app
+      const root = createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
